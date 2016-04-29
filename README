@@ -1,0 +1,101 @@
+1) Convert tashkeela to buckwalter (removing initial 'rubbish' in each file). Filenames? Convert them also to bw?
+perl convertTashkeela2Buckwalter.pl
+
+2) Convert bw-tashkeela to timbl data
+cat bw-taskeela/test.out | perl bw2timbl.pl > timbl-data/test.timbl
+cat timbl-data/test.timbl | shuf > timbl-data/test_shuf.timbl 
+
+cat bw-taskeela/*txt | perl bw2timbl.pl > timbl-data/all.timbl
+cat timbl-data/all.timbl | shuf > timbl-data/all_shuf.timbl 
+
+
+Kolla: cut -f 11 -d " " timbl-data/test.timbl | sort | uniq -c
+cut -f 11 -d " " timbl-data/all.timbl | sort | uniq -c
+
+3) Uniq timbl-data? Check if this is the right thing to do!
+cat timbl-data/test_shuf.timbl | sort | uniq > timbl-data/test_shuf_uniq.timbl
+
+4) Split into train and test set
+(head -10000 > timbl-data/test_shuf_testdata.timbl; cat > timbl-data/test_shuf_traindata.timbl) < timbl-data/test_shuf.timbl
+
+(head -10000 > timbl-data/test_shuf_uniq_testdata.timbl; cat > timbl-data/test_shuf_uniq_traindata.timbl) < timbl-data/test_shuf_uniq.timbl
+
+(head -10000 > timbl-data/all_shuf_testdata.timbl; cat > timbl-data/all_shuf_traindata.timbl) < timbl-data/all_shuf.timbl
+
+5) run timbl
+timbl -f timbl-data/test_shuf_traindata.timbl -t timbl-data/test_shuf_testdata.timbl
+Seconds taken: 4.8936 (2043.47 p/s)
+
+overall accuracy:        0.958900  (9589/10000), of which 2294 exact matches 
+There were 67 ties of which 37 (55.22%) were correctly resolved
+
+
+timbl -f timbl-data/test_shuf_uniq_traindata.timbl -t timbl-data/test_shuf_uniq_testdata.timbl
+Seconds taken: 240.2925 (41.62 p/s)
+
+overall accuracy:        0.980800  (9808/10000)
+There were 136 ties of which 26 (19.12%) were correctly resolved
+
+** Den andra tar extremt mycket längre tid, varför då?
+
+
+timbl -I timbl-data/all_shuf_traindata.ib -f timbl-data/all_shuf_traindata.timbl
+timbl -i timbl-data/all_shuf_traindata.ib -t timbl-data/all_shuf_testdata.timbl
+
+Seconds taken: 13.1202 (762.18 p/s)
+
+overall accuracy:        0.973300  (9733/10000), of which 4071 exact matches 
+There were 41 ties of which 22 (53.66%) were correctly resolved
+
+
+6) use for vocalisation
+timbl -f timbl-data/test_shuf_traindata.timbl -I timbl-data/test_shuf_traindata.ib
+echo "bisomi All~ahi Alr~aHomani" | perl bw2timbl.pl > test.timbl
+timbl -i timbl-data/test_shuf_traindata.ib -t test.timbl
+Writing output in:          test.timbl.IB1.O.gr.k1.out
+TODO Read output file, combine focus+class, write bw, convert to arabic
+
+-----------------------------------------------------------------
+NOTES
+
+Först behövs en fil med text i buckwalter.
+
+test.in är en av tashkeela-filerna.
+python buckwalter.py -hamza -madda -harakat -tatweel -t -corpus test.in > test.out
+konverterar till fullständig buckwalter
+
+De flesta bokstäver har minst ett diakritiskt tecken (minst sukun)
+inte l i Al.
+andra:
+maA, haday
+
+Ok så klass måste vara diakritiskt tecken, ev plus shadda, eller 0 för ingenting.
+
+Konvertera till timblformat:
+
+Input:
+bisomi All~ahi Alr~aHomani
+
+Output
+3 kons vänsterkontext i ordet, fokus, tre kons högerkontext, vänster ord utan diak, fokus-ord utan diak, höger ord utan diak, klass
+
+-3 -2 -1 F 1 2 3 -1 0 1 C
+bisomi:
+
+- - - b s m - - bsm Allh i
+- - b s m - - - bsm Allh o
+- b s m - - - - bsm Allh i
+All~ahi:
+- - - A l l h bsm Allh AlrHmn -
+- - A l l h - bsm Allh AlrHmn -
+- A l l h - - bsm Allh AlrHmn ~a
+A l l h - - - bsm Allh AlrHmn i
+Alr~aHomani:
+- - - A l r H Allh AlrHmn - -
+- - A l r H m Allh AlrHmn - -
+- A l r H m n Allh AlrHmn - ~a
+A l r H m n - Allh AlrHmn - o
+l r H m n - - Allh AlrHmn - a
+r H m n - - - Allh AlrHmn - i
+
+

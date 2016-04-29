@@ -1,0 +1,1 @@
+python buckwalter.py -hamza -madda -harakat -tatweel -t -corpus test.in > test.out
