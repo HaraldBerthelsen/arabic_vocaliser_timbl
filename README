@@ -55,6 +55,14 @@ timbl -i timbl-data/test_shuf_traindata.ib -t test.timbl
 Writing output in:          test.timbl.IB1.O.gr.k1.out
 TODO Read output file, combine focus+class, write bw, convert to arabic
 
+timblserver -i timbl-data/all_shuf_traindata.ib -S 7000
+harald@harald-Vox:~/git/arabic_vocaliser_timbl$ echo "mHmd" | perl bw2timbl.pl | python client.py
+muHam~adu
+harald@harald-Vox:~/git/arabic_vocaliser_timbl$ echo "Almmlkp AlmGrbyp" | perl bw2timbl.pl | python client.py 
+Alomamolakapi AlomuGoribiy~api
+
+
+
 -----------------------------------------------------------------
 NOTES
 
