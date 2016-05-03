@@ -54,6 +54,15 @@ timbl -i timbl-data/all_shuf_traindata.ib -t timbl-data/all_shuf_testdata.timbl
 Output is in timbl-data/all_shuf_testdata.timbl.IB1.O.gr.k1.out
 Read the file, combine to words when nextchar is -, count word errors.
 
+cat timbl-data/all_shuf_testdata.timbl.IB1.O.gr.k1.out | python evaluate_word_error.py 
+SYMBOL COUNT: 10000
+ERRORS: 267
+RATE: 2.67
+
+WORD COUNT: 2572
+ERRORS: 150
+RATE: 5.83
+
 
 
 7) use for vocalisation
